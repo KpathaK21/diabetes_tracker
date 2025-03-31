@@ -16,7 +16,4 @@ The project is divided into three main components:
 - Python (version 3.8 or higher)
 - Flutter (version 2.0 or higher)
 
-### Backend Setup
-1. Navigate to the `backend` directory:
-   ```bash
-   cd backend
+
