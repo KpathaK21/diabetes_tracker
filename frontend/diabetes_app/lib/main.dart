@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
-import 'meal_plan_screen.dart';
-import 'auth_service.dart'; // Import the AuthService
+import 'screens/login_screen.dart';
+import 'screens/add_diet_screen.dart';
+import 'screens/meal_plan_screen.dart';
+import 'screens/recommendation_screen.dart'; // Make sure this import points to your actual file
 
 void main() {
   runApp(MyApp());
@@ -11,28 +12,62 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Diet Recommendations App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => FutureBuilder<String?>(
-          future: AuthService().getToken(), // Get the saved token
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Scaffold(body: Center(child: CircularProgressIndicator()));
-            } else if (snapshot.hasData && snapshot.data != null) {
-              // If token is found, navigate directly to meal plan screen
-              return MealPlanScreen();
-            } else {
-              // If no token, show the login screen
-              return LoginScreen();
-            }
-          },
-        ),
+        '/': (context) => LoginScreen(),
+        '/addDiet': (context) => AddDietScreen(),
+        '/recommendation': (context) => RecommendationScreen(),
         '/mealPlan': (context) => MealPlanScreen(),
+      },
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => NotFoundPage());
       },
     );
   }
 }
+
+class NotFoundPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Not Found")),
+      body: Center(child: Text("The page you are looking for doesn't exist.")),
+    );
+  }
+}
+
+
+
+
+
+// import 'package:flutter/material.dart';
+// import 'screens/login_screen.dart';
+// import 'screens/meal_plan_screen.dart';
+// 
+// void main() {
+//   runApp(MyApp());
+// }
+// 
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Flutter Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       initialRoute: '/',
+//       routes: {
+//         '/': (context) => LoginScreen(),
+//         '/addDiet': (context) => AddDietScreen(),
+//   		'/recommendation': (context) => RecommendationScreen(),
+//         '/mealPlan': (context) => MealPlanScreen(),
+//       },
+//     );
+//   }
+// }

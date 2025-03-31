@@ -14,17 +14,15 @@ class AuthService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       String token = data['token'];
-
-      // Save token to SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('jwt_token', token);  // Store the token
+      await prefs.setString('jwt_token', token);
       print("Token saved: $token");
     } else {
       print("Login failed: ${response.body}");
     }
   }
 
-  // Fetch token (for example, before making API requests)
+  // Fetch token for API requests
   Future<String?> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('jwt_token');
