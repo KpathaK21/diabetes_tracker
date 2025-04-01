@@ -38,7 +38,6 @@ func main() {
         auth.POST("/diet", AddDietLog)
         auth.GET("/diet", GetDietLogs)
 
-        //auth.POST("/diet/recommend", RecommendDiet)
         auth.POST("/submit_and_recommend", SubmitDataAndRecommend)
         auth.GET("/history", GetUserHistory)
         

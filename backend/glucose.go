@@ -13,7 +13,7 @@ type GlucoseReading struct {
     Level      float64   `gorm:"not null" json:"level"`
     RecordedAt time.Time `gorm:"not null" json:"recorded_at"`
     MealTag    string    `json:"meal_tag"`
-    MealType   string    `json:"meal_type"`  // Ensure meal type is sent
+    MealType   string    `json:"meal_type"` 
     Notes      string    `json:"notes"`
 }
 
