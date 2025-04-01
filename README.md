@@ -12,8 +12,9 @@ The project is divided into three main components:
 ## Setup Instructions
 
 ### Prerequisites
-- Go (version 1.15 or higher)
-- Python (version 3.8 or higher)
-- Flutter (version 2.0 or higher)
-
-
+- Go 
+- Flutter 
+- PostgreSQL
+- OpenAI API
+- JWT authentication
+  
