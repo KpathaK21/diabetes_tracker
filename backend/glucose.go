@@ -4,16 +4,17 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "time"
+    "fmt"
 )
 
 type GlucoseReading struct {
-    ID         uint      `gorm:"primaryKey"`
-    UserID     uint      `gorm:"not null;index"`
-    Level      float64   `gorm:"not null"`
-    RecordedAt time.Time `gorm:"not null"`
-    MealTag    string
-    MealType   string    `gorm:"not null"`  // Added field for meal type
-    Notes      string
+    ID         uint      `gorm:"primaryKey" json:"id"`
+    UserID     uint      `gorm:"not null;index" json:"user_id"`
+    Level      float64   `gorm:"not null" json:"level"`
+    RecordedAt time.Time `gorm:"not null" json:"recorded_at"`
+    MealTag    string    `json:"meal_tag"`
+    MealType   string    `json:"meal_type"`  // Ensure meal type is sent
+    Notes      string    `json:"notes"`
 }
 
 
@@ -53,6 +54,7 @@ func AddGlucoseReading(c *gin.Context) {
     input.RecordedAt = time.Now()
 
     if err := DB.Create(&input).Error; err != nil {
+    	fmt.Println("Glucose save error:", err)
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save glucose reading"})
         return
     }
