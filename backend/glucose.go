@@ -12,8 +12,10 @@ type GlucoseReading struct {
     Level      float64   `gorm:"not null"`
     RecordedAt time.Time `gorm:"not null"`
     MealTag    string
+    MealType   string    `gorm:"not null"`  // Added field for meal type
     Notes      string
 }
+
 
 func GetGlucoseData(c *gin.Context) {
     var readings []GlucoseReading
@@ -41,7 +43,6 @@ func AddGlucoseReading(c *gin.Context) {
         return
     }
 
-    // ✅ Assign actual UserID from token
     userID, exists := c.Get("user_id")
     if !exists {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
@@ -56,8 +57,5 @@ func AddGlucoseReading(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{
-        "message": "Glucose reading saved to DB",
-        "data":    input,
-    })
+    c.JSON(http.StatusOK, gin.H{"message": "Glucose reading saved", "data": input})
 }

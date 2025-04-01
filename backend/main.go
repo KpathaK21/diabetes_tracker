@@ -5,6 +5,7 @@ import (
     "github.com/joho/godotenv"
     "os"
     "log"
+    "net/http"
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
     // Public routes
     r.POST("/users", RegisterUser)
     r.POST("/login", LoginUser)
+    r.POST("/submit-data", handleDataSubmission)
 
     // Protected routes
     auth := r.Group("/", AuthMiddleware())
@@ -34,7 +36,9 @@ func main() {
         auth.POST("/diet", AddDietLog)
         auth.GET("/diet", GetDietLogs)
 
-        auth.POST("/diet/recommend", RecommendDiet)
+        //auth.POST("/diet/recommend", RecommendDiet)
+        auth.POST("/submit_and_recommend", SubmitDataAndRecommend)
+        
     }
 
     port := os.Getenv("PORT")
@@ -60,4 +64,23 @@ func CORSMiddleware() gin.HandlerFunc {
 
         c.Next()
     }
+}
+
+
+func handleDataSubmission(c *gin.Context) {
+    var data struct {
+        FoodDescription string  `json:"foodDescription"`
+        Calories        int     `json:"calories"`
+        Nutrients       string  `json:"nutrients"`
+        GlucoseLevel    float64 `json:"glucoseLevel"`
+    }
+    
+    if err := c.ShouldBindJSON(&data); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Process data here, e.g., save to database
+    // Respond
+    c.JSON(http.StatusOK, gin.H{"message": "Data received successfully"})
 }
