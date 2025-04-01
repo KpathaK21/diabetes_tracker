@@ -1,14 +1,12 @@
 package main
 
 import (
-	"bytes"
-	"io"
     "context"
     "fmt"
-    "net/http"  // Ensure net/http is imported for HTTP status codes
+    "net/http"  
     "os"
     "strings"
-    "time"      // Ensure time is imported for time.Now()
+    "time"     
     "github.com/gin-gonic/gin"
     openai "github.com/sashabaranov/go-openai"
 )

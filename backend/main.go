@@ -22,6 +22,8 @@ func main() {
     r.POST("/users", RegisterUser)
     r.POST("/login", LoginUser)
     r.POST("/submit-data", handleDataSubmission)
+    r.POST("/signup", Signup)
+    
 
     // Protected routes
     auth := r.Group("/", AuthMiddleware())
@@ -38,6 +40,8 @@ func main() {
 
         //auth.POST("/diet/recommend", RecommendDiet)
         auth.POST("/submit_and_recommend", SubmitDataAndRecommend)
+        auth.GET("/history", GetUserHistory)
+        
         
     }
 
