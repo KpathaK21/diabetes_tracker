@@ -1,0 +1,188 @@
+// lib/screens/email_verification_screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:diabetes_app/services/auth_service.dart';
+
+class EmailVerificationScreen extends StatefulWidget {
+  final String? initialToken;
+  final String? email;
+
+  EmailVerificationScreen({this.initialToken, this.email});
+
+  @override
+  _EmailVerificationScreenState createState() => _EmailVerificationScreenState();
+}
+
+class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _tokenController = TextEditingController();
+  bool _isLoading = false;
+  String _email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // If an initial token was provided, set it in the controller
+    if (widget.initialToken != null && widget.initialToken!.isNotEmpty) {
+      _tokenController.text = widget.initialToken!;
+      // Auto-verify if token is provided
+      Future.delayed(Duration(milliseconds: 500), () {
+        _submitVerification();
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get the email from the route arguments or widget parameter
+    if (widget.email != null && widget.email!.isNotEmpty) {
+      _email = widget.email!;
+    } else {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args != null && args is String) {
+        _email = args;
+      } else if (args != null && args is Map<String, dynamic>) {
+        _email = args['email'] as String? ?? '';
+        String? token = args['token'] as String?;
+        if (token != null && token.isNotEmpty && _tokenController.text.isEmpty) {
+          _tokenController.text = token;
+          // Auto-verify if token is provided
+          Future.delayed(Duration(milliseconds: 500), () {
+            _submitVerification();
+          });
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
+  }
+
+  void _submitVerification() async {
+    if (_tokenController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a verification token')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final result = await AuthService().verifyEmail(_tokenController.text);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'])),
+        );
+        
+        // Navigate to login screen after successful verification
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pushReplacementNamed(context, '/');
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'])),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred during verification. Please try again.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Email Verification")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.email_outlined,
+                      size: 64,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "Verify Your Email",
+                      style: Theme.of(context).textTheme.titleLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "We've sent a verification link to $_email. Please check your email and click the link to verify your account.",
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24),
+                    Text(
+                      "Didn't receive the email? Check your spam folder or enter the verification code manually below:",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 24),
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _tokenController,
+                    decoration: InputDecoration(
+                      labelText: 'Verification Code',
+                      border: OutlineInputBorder(),
+                      helperText: 'Enter the code from your verification email',
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _submitVerification,
+                    child: _isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text('Verify Email'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/');
+              },
+              child: Text("Back to Login"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

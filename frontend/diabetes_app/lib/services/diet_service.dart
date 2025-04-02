@@ -51,4 +51,29 @@ class DietService {
       return "Failed: ${response.body}";
     }
   }
+
+  // 🆕 Get diet + glucose history from the backend
+  Future<Map<String, dynamic>?> fetchHistory() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('jwt_token');
+
+    if (token == null) {
+      print("No token found");
+      return null;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/history'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch history: ${response.body}");
+      return null;
+    }
+  }
 }

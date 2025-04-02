@@ -1,5 +1,7 @@
+// lib/screens/login_screen.dart
+
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';  // Adjust import based on your structure
+import 'package:diabetes_app/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -7,70 +9,85 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthService authService = AuthService();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  bool isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  String _email = '';
+  String _password = '';
+  bool _isLoading = false;
 
-  void loginUser(BuildContext context) async {
-    String email = emailController.text;
-    String password = passwordController.text;
+  void _submitLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter both email and password')),
-      );
-      return;
+    setState(() => _isLoading = true);
+
+    try {
+      bool success = await AuthService().loginUser(_email, _password);
+
+      setState(() => _isLoading = false);
+
+      if (success) {
+        Navigator.pushReplacementNamed(context, '/addDiet');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login failed. Please check your credentials.")),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      
+      String errorMessage = e.toString();
+      if (errorMessage.contains("verify your email")) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Please verify your email address before logging in."),
+            action: SnackBarAction(
+              label: 'Verify',
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/email_verification', arguments: _email);
+              },
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login failed: $errorMessage")),
+        );
+      }
     }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    await authService.loginUser(email, password);
-    setState(() {
-      isLoading = false;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Login successful, token saved.')),
-    );
-    Navigator.pushReplacementNamed(context, '/addDiet');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text("Login")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Email'),
+                onSaved: (value) => _email = value!,
+                validator: (value) =>
+                    value!.isEmpty ? 'Please enter your email' : null,
               ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                border: OutlineInputBorder(),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                onSaved: (value) => _password = value!,
+                validator: (value) =>
+                    value!.isEmpty ? 'Please enter your password' : null,
               ),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: isLoading ? null : () => loginUser(context),
-              child: isLoading ? CircularProgressIndicator() : Text('Login'),
-            ),
-          ],
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitLogin,
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text("Login"),
+              ),
+            ],
+          ),
         ),
       ),
     );
