@@ -46,17 +46,30 @@ func SubmitDataAndRecommend(c *gin.Context) {
 		return
 	}
 
-	// Generate a single recommendation based on glucose level
-	recommendation := generateCompleteRecommendation(input.Glucose, input.Diet)
+	// Get predefined glucose levels from the medical profile
+	var medicalProfile MedicalProfile
+	if err := DB.Where("user_id = ?", userID.(uint)).First(&medicalProfile).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve medical profile"})
+		return
+	}
+
+	// Generate a single recommendation based on glucose level and compare with predefined levels
+	recommendation := generateCompleteRecommendation(input.Glucose, input.Diet, medicalProfile)
 
 	// Call the recommend function with the complete recommendation
 	recommend(c, []DietLog{input.Diet}, []GlucoseReading{input.Glucose}, recommendation)
 }
 
-func generateCompleteRecommendation(glucose GlucoseReading, diet DietLog) string {
+func generateCompleteRecommendation(glucose GlucoseReading, diet DietLog, medicalProfile MedicalProfile) string {
 	// Generate the basic recommendation based on glucose level
 	var recommendation string
-	if glucose.Level > 180 {
+
+	// Compare with predefined levels from medical profile
+	if glucose.Level < medicalProfile.FastingBloodGlucose {
+		recommendation = "Your glucose is below your predefined fasting level. This might indicate hypoglycemia. Consider consuming some carbohydrates."
+	} else if glucose.Level > medicalProfile.PostprandialGlucose {
+		recommendation = "Your glucose level is above your predefined postprandial level. You should monitor your diet more carefully and consider reducing carbohydrate intake."
+	} else if glucose.Level > 180 {
 		recommendation = "Your blood glucose level is high. You should consider reducing carbohydrate intake."
 	} else if glucose.Level < 70 {
 		recommendation = "Your blood glucose level is low. You should eat something rich in carbohydrates."
