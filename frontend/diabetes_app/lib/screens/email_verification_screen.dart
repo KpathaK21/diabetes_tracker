@@ -134,12 +134,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      "We've sent a verification link to $_email. Please check your email and click the link to verify your account.",
+                      "We've sent a verification code to $_email. Please check your email and enter the code below to verify your account.",
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 24),
                     Text(
-                      "Didn't receive the email? Check your spam folder or enter the verification code manually below:",
+                      "Didn't receive the email? Check your spam folder or request a new code.",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontStyle: FontStyle.italic),
                     ),
@@ -157,8 +157,16 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     decoration: InputDecoration(
                       labelText: 'Verification Code',
                       border: OutlineInputBorder(),
-                      helperText: 'Enter the code from your verification email',
+                      helperText: 'Enter the 6-digit code from your verification email',
                     ),
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    style: TextStyle(
+                      fontSize: 20,
+                      letterSpacing: 8,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(

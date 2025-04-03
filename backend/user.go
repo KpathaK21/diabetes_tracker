@@ -1,9 +1,9 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
@@ -107,11 +107,13 @@ func RegisterUser(c *gin.Context) {
 	})
 }
 
-// Generate a random verification token
+// Generate a 6-digit verification code
 func generateVerificationToken() string {
-	b := make([]byte, 32)
-	rand.Read(b)
-	return fmt.Sprintf("%x", b)
+	// Initialize the random number generator
+	rand.Seed(time.Now().UnixNano())
+	// Generate a random 6-digit number
+	code := 100000 + rand.Intn(900000)
+	return fmt.Sprintf("%d", code)
 }
 
 // Send verification email to the user using SendGrid
@@ -123,12 +125,11 @@ func sendVerificationEmail(email, token string) {
 		appDomain = "http://localhost:3000" // Default for local development
 	}
 
-	// Create the verification link
-	// For deep linking in mobile apps, the format should be: scheme://path?token=value
-	verificationLink := fmt.Sprintf("%sverify?token=%s", appDomain, token)
+	// We're now using a verification code instead of a link
+	verificationCode := token
 
-	// Log the link for debugging purposes
-	log.Printf("Sending verification email to %s with link: %s\n", email, verificationLink)
+	// Log the verification code for debugging purposes
+	log.Printf("Sending verification email to %s with code: %s\n", email, verificationCode)
 
 	// Get sender email from environment variable
 	senderEmail := os.Getenv("SENDER_EMAIL")
@@ -146,7 +147,7 @@ func sendVerificationEmail(email, token string) {
 	plainTextContent := fmt.Sprintf(`
 Hello,
 
-Thank you for signing up for the Diabetes App. Please verify your email address by clicking on the link below:
+Thank you for signing up for the Diabetes App. Please verify your email address by entering the verification code below:
 
 %s
 
@@ -154,45 +155,42 @@ If you did not sign up for this service, please ignore this email.
 
 Best regards,
 The Diabetes App Team
-	`, verificationLink)
+	`, verificationCode)
 
 	// Create HTML content with a professional template
 	htmlContent := fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #4285f4; color: white; padding: 10px; text-align: center; }
-        .content { padding: 20px; }
-        .button { display: inline-block; background-color: #4285f4; color: white; text-decoration: none; padding: 10px 20px; border-radius: 4px; }
-        .footer { font-size: 12px; color: #777; margin-top: 30px; }
-    </style>
+	   <style>
+	       body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+	       .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+	       .header { background-color: #4285f4; color: white; padding: 10px; text-align: center; }
+	       .content { padding: 20px; }
+	       .verification-code { font-size: 32px; font-weight: bold; text-align: center; letter-spacing: 5px; margin: 20px 0; color: #4285f4; }
+	       .footer { font-size: 12px; color: #777; margin-top: 30px; }
+	   </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Diabetes App</h1>
-        </div>
-        <div class="content">
-            <p>Hello,</p>
-            <p>Thank you for signing up for the Diabetes App. Please verify your email address by clicking on the button below:</p>
-            <p style="text-align: center;">
-                <a href="%s" class="button">Verify Email Address</a>
-            </p>
-            <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-            <p>%s</p>
-            <p>If you did not sign up for this service, please ignore this email.</p>
-            <p>Best regards,<br>The Diabetes App Team</p>
-        </div>
-        <div class="footer">
-            <p>This is an automated message, please do not reply to this email.</p>
-        </div>
-    </div>
+	   <div class="container">
+	       <div class="header">
+	           <h1>Diabetes App</h1>
+	       </div>
+	       <div class="content">
+	           <p>Hello,</p>
+	           <p>Thank you for signing up for the Diabetes App. Please verify your email address by entering the verification code below:</p>
+	           <div class="verification-code">%s</div>
+	           <p>Enter this code in the verification screen of the app to complete your registration.</p>
+	           <p>If you did not sign up for this service, please ignore this email.</p>
+	           <p>Best regards,<br>The Diabetes App Team</p>
+	       </div>
+	       <div class="footer">
+	           <p>This is an automated message, please do not reply to this email.</p>
+	       </div>
+	   </div>
 </body>
 </html>
-	`, verificationLink, verificationLink)
+	`, verificationCode)
 
 	// Create the email message
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
@@ -242,15 +240,19 @@ func ValidateEmailFormat(email string) bool {
 
 // VerifyEmail handles email verification
 func VerifyEmail(c *gin.Context) {
-	token := c.Query("token")
-	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification token is required"})
+	// Get verification code from request body instead of URL query
+	var input struct {
+		Code string `json:"code" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code is required"})
 		return
 	}
 
 	var user User
-	if err := DB.Where("verification_token = ? AND token_expiry > ?", token, time.Now()).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification token"})
+	if err := DB.Where("verification_token = ? AND token_expiry > ?", input.Code, time.Now()).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification code"})
 		return
 	}
 

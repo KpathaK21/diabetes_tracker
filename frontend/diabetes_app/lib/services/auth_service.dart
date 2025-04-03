@@ -94,12 +94,13 @@ class AuthService {
 	  }
 	}
 	
-	// Verify email function
-	Future<Map<String, dynamic>> verifyEmail(String token) async {
+	// Verify email function with verification code
+	Future<Map<String, dynamic>> verifyEmail(String code) async {
 	  try {
-	    final response = await http.get(
-	      Uri.parse('http://localhost:8080/verify?token=$token'),
+	    final response = await http.post(
+	      Uri.parse('http://localhost:8080/verify'),
 	      headers: {'Content-Type': 'application/json'},
+	      body: json.encode({'code': code}),
 	    );
 
 	    if (response.statusCode == 200) {

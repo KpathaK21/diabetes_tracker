@@ -43,7 +43,7 @@ func main() {
 	r.POST("/login", LoginUser)
 	r.POST("/submit-data", handleDataSubmission)
 	r.POST("/signup", Signup)
-	r.GET("/verify", VerifyEmail) // Email verification endpoint
+	r.POST("/verify", VerifyEmail) // Email verification endpoint with code
 
 	// Protected routes
 	auth := r.Group("/", AuthMiddleware())
