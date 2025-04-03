@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
 
       if (success) {
-        Navigator.pushReplacementNamed(context, '/addDiet');
+        Navigator.pushReplacementNamed(context, '/glucose_setup_screen');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Login failed. Please check your credentials.")),
