@@ -1,0 +1,11 @@
+# Virtual environments
+**/tensorflow_env/
+**/venv/
+**/__pycache__/
+
+# Large datasets
+ai_services/food-101/
+ai_services/food-101.tar.gz
+
+# OS specific files
+.DS_Store
