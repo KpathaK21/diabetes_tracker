@@ -97,7 +97,7 @@ func recommend(c *gin.Context, diets []DietLog, glucose []GlucoseReading, recomm
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: "You are a helpful nutritionist for people with diabetes, using the most advanced medical knowledge available. Your job is to recommend appropriate meals for the rest of the day based on the user's glucose levels and previous food intake. Also suggest suitable workouts to help maintain optimal glucose control. Present your recommendations in a clear, well-formatted manner.",
+				Content: "You are a helpful nutritionist for people with diabetes, using the most advanced medical knowledge available. Your job is to recommend appropriate meals for the rest of the day based on the user's glucose levels and previous food intake. Always acknowledge the food in the user's uploaded image at the beginning of your response (e.g., 'I see you had [food] for your meal'). Also suggest suitable workouts to help maintain optimal glucose control. Present your recommendations in a clear, well-formatted manner.",
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
@@ -132,6 +132,15 @@ func buildPrompt(diets []DietLog, glucose []GlucoseReading, recommendation strin
 		sb.WriteString("Recent Meals:\n")
 		for _, d := range diets {
 			sb.WriteString(fmt.Sprintf("- %s: %s (%d cal) - %s\n", d.Timestamp.Format("Jan 2 15:04"), d.FoodDescription, d.Calories, d.Nutrients))
+		}
+
+		// Add explicit instruction to acknowledge the food in the response
+		if len(diets) > 0 && diets[0].FoodDescription != "" {
+			// Extract the food name (usually before the first colon or delimiter)
+			parts := strings.Split(diets[0].FoodDescription, ":")
+			foodName := strings.TrimSpace(parts[0])
+
+			sb.WriteString(fmt.Sprintf("\nIMPORTANT: The user has uploaded an image of %s. Please acknowledge this in your response by starting with 'I see that you had %s' or similar phrasing.\n", foodName, foodName))
 		}
 	}
 
