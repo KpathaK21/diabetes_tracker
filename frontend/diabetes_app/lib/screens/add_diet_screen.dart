@@ -3,6 +3,8 @@ import 'package:diabetes_app/services/diet_service.dart';
 import 'package:diabetes_app/services/auth_service.dart';
 
 class AddDietScreen extends StatefulWidget {
+  const AddDietScreen({super.key});
+
   @override
   _AddDietScreenState createState() => _AddDietScreenState();
 }
@@ -51,10 +53,10 @@ class _AddDietScreenState extends State<AddDietScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Diet and Glucose Log"),
+        title: const Text("Add Diet and Glucose Log"),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () {
               AuthService().logout(context);
             },
@@ -65,8 +67,8 @@ class _AddDietScreenState extends State<AddDietScreen> {
         onPressed: () {
           Navigator.pushNamed(context, '/foodImage');
         },
-        child: Icon(Icons.camera_alt),
         tooltip: 'Use Image Classification',
+        child: const Icon(Icons.camera_alt),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -75,55 +77,55 @@ class _AddDietScreenState extends State<AddDietScreen> {
           child: Column(
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(labelText: 'Food Description'),
+                decoration: const InputDecoration(labelText: 'Food Description'),
                 onSaved: (value) => _foodDescription = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter food description' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Calories'),
+                decoration: const InputDecoration(labelText: 'Calories'),
                 keyboardType: TextInputType.number,
                 onSaved: (value) => _calories = int.parse(value!),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter calories' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nutrients'),
+                decoration: const InputDecoration(labelText: 'Nutrients'),
                 onSaved: (value) => _nutrients = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter nutrients' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Glucose Level'),
+                decoration: const InputDecoration(labelText: 'Glucose Level'),
                 keyboardType: TextInputType.number,
                 onSaved: (value) => _glucoseLevel = double.parse(value!),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter glucose level' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Meal Tag'),
+                decoration: const InputDecoration(labelText: 'Meal Tag'),
                 onSaved: (value) => _mealTag = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter meal tag' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Meal Type'),
+                decoration: const InputDecoration(labelText: 'Meal Type'),
                 onSaved: (value) => _mealType = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter meal type' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Notes'),
+                decoration: const InputDecoration(labelText: 'Notes'),
                 onSaved: (value) => _notes = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter notes' : null,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitDietLog,
                 child: _isLoading
-                    ? CircularProgressIndicator()
-                    : Text('Submit'),
+                    ? const CircularProgressIndicator()
+                    : const Text('Submit'),
               ),
             ],
           ),

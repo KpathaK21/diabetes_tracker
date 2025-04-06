@@ -39,13 +39,16 @@ def mock_classification_response():
     # Get nutrients information
     nutrients_info = nutrients_db.get(predicted_class, {})
     
-    # Prepare response
+    # Prepare enhanced response
     response = {
         'food': predicted_class,
         'confidence': confidence,
         'calories': nutrients_info.get('calories', 0),
         'nutrients': nutrients_info.get('nutrients', {}),
-        'description': nutrients_info.get('description', f'This appears to be {predicted_class}')
+        'description': nutrients_info.get('description', f'This appears to be {predicted_class}'),
+        'glycemic_index': nutrients_info.get('glycemic_index', 0),
+        'portion_size': nutrients_info.get('portion_size', 'Unknown'),
+        'diabetes_impact': nutrients_info.get('diabetes_impact', 'Unknown impact on blood glucose levels')
     }
     
     return jsonify(response)
@@ -97,19 +100,8 @@ def classify_image():
 @app.route('/create_nutrients_db', methods=['POST'])
 def create_nutrients_db():
     try:
-        # Create a sample nutrients database
+        # Create an enhanced nutrients database
         nutrients_db = {
-            "apple_pie": {
-                "calories": 237,
-                "nutrients": {
-                    "carbohydrates": 33.6,
-                    "protein": 2.4,
-                    "fat": 11.0,
-                    "fiber": 1.4,
-                    "sugar": 18.9
-                },
-                "description": "Apple pie with a sweet filling of apple, sugar, and cinnamon"
-            },
             "pizza": {
                 "calories": 266,
                 "nutrients": {
@@ -117,9 +109,19 @@ def create_nutrients_db():
                     "protein": 11.0,
                     "fat": 10.0,
                     "fiber": 2.3,
-                    "sugar": 3.6
+                    "sugar": 3.6,
+                    "sodium": 598.0,
+                    "potassium": 184.0,
+                    "cholesterol": 17.0,
+                    "vitamin_a": 5.0,
+                    "vitamin_c": 2.0,
+                    "calcium": 18.0,
+                    "iron": 10.0
                 },
-                "description": "Pizza with cheese, tomato sauce, and various toppings"
+                "glycemic_index": 60,
+                "portion_size": "1 slice (107g)",
+                "description": "Pizza with cheese, tomato sauce, and various toppings",
+                "diabetes_impact": "Moderate glycemic impact. The combination of cheese and refined flour crust can raise blood glucose levels."
             },
             "salad": {
                 "calories": 152,
@@ -128,18 +130,65 @@ def create_nutrients_db():
                     "protein": 3.8,
                     "fat": 11.0,
                     "fiber": 3.0,
-                    "sugar": 2.5
+                    "sugar": 2.5,
+                    "sodium": 170.0,
+                    "potassium": 350.0,
+                    "cholesterol": 0.0,
+                    "vitamin_a": 70.0,
+                    "vitamin_c": 40.0,
+                    "calcium": 5.0,
+                    "iron": 8.0
                 },
-                "description": "Mixed greens with vegetables and dressing"
+                "glycemic_index": 15,
+                "portion_size": "1 bowl (150g)",
+                "description": "Mixed greens with vegetables and dressing",
+                "diabetes_impact": "Low glycemic impact. High fiber content helps slow glucose absorption."
             },
-            # Add more food items as needed
+            "apple_pie": {
+                "calories": 237,
+                "nutrients": {
+                    "carbohydrates": 33.6,
+                    "protein": 2.4,
+                    "fat": 11.0,
+                    "fiber": 1.4,
+                    "sugar": 18.9,
+                    "sodium": 170.0,
+                    "potassium": 100.0,
+                    "cholesterol": 0.0,
+                    "vitamin_a": 1.0,
+                    "vitamin_c": 2.0,
+                    "calcium": 1.0,
+                    "iron": 4.0
+                },
+                "glycemic_index": 65,
+                "portion_size": "1 slice (125g)",
+                "description": "Apple pie with a sweet filling of apple, sugar, and cinnamon",
+                "diabetes_impact": "High glycemic impact due to sugar content and refined flour crust."
+            }
         }
+        
+        # Check if we should use the full enhanced database
+        use_full_db = request.json.get('use_full_db', True)
+        
+        if use_full_db:
+            # Import the create_nutrients_db module to get the full database
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("create_nutrients_db", "create_nutrients_db.py")
+            create_nutrients_db_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(create_nutrients_db_module)
+            
+            # Use the full nutrients database from the module
+            nutrients_db = create_nutrients_db_module.nutrients_db
         
         # Save the nutrients database
         with open(NUTRIENTS_DB_PATH, 'w') as f:
             json.dump(nutrients_db, f, indent=4)
         
-        return jsonify({'message': 'Sample nutrients database created successfully'})
+        return jsonify({
+            'message': 'Enhanced nutrients database created successfully',
+            'food_items_count': len(nutrients_db),
+            'sample_items': list(nutrients_db.keys())[:5]
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

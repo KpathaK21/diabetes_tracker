@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:diabetes_app/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -29,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacementNamed(context, '/glucose_setup_screen');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login failed. Please check your credentials.")),
+          const SnackBar(content: Text("Login failed. Please check your credentials.")),
         );
       }
     } catch (e) {
@@ -39,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (errorMessage.contains("verify your email")) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Please verify your email address before logging in."),
+            content: const Text("Please verify your email address before logging in."),
             action: SnackBarAction(
               label: 'Verify',
               onPressed: () {
@@ -59,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
+      appBar: AppBar(title: const Text("Login")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -67,24 +69,24 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email'),
                 onSaved: (value) => _email = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter your email' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 onSaved: (value) => _password = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter your password' : null,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitLogin,
                 child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Login"),
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("Login"),
               ),
             ],
           ),

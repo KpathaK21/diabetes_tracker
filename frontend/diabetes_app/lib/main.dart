@@ -12,7 +12,6 @@ import 'screens/recommendation_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/email_verification_screen.dart';
 import 'screens/food_image_screen.dart';
-import 'services/auth_service.dart';
 
 bool _initialUriIsHandled = false;
 
@@ -21,10 +20,12 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -129,19 +130,19 @@ class _MyAppState extends State<MyApp> {
 
         switch (settings.name) {
           case '/':
-            return MaterialPageRoute(builder: (_) => LoginScreen());
+            return MaterialPageRoute(builder: (_) => const LoginScreen());
           case '/signup':
-            return MaterialPageRoute(builder: (_) => SignupScreen());
+            return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/glucose_setup_screen':
-            return MaterialPageRoute(builder: (_) => GlucoseSetupScreen());  
+            return MaterialPageRoute(builder: (_) => const GlucoseSetupScreen());  
           case '/addDiet':
-            return MaterialPageRoute(builder: (_) => AddDietScreen());
+            return MaterialPageRoute(builder: (_) => const AddDietScreen());
           case '/mealPlan':
-            return MaterialPageRoute(builder: (_) => MealPlanScreen());
+            return MaterialPageRoute(builder: (_) => const MealPlanScreen());
           case '/history':
-            return MaterialPageRoute(builder: (_) => HistoryScreen());
+            return MaterialPageRoute(builder: (_) => const HistoryScreen());
           case '/foodImage':
-            return MaterialPageRoute(builder: (_) => FoodImageScreen());
+            return MaterialPageRoute(builder: (_) => const FoodImageScreen());
           case '/email_verification':
             final args = settings.arguments;
             String email = '';
@@ -166,7 +167,7 @@ class _MyAppState extends State<MyApp> {
               builder: (context) => RecommendationScreen(recommendation: recommendation),
             );
           default:
-            return MaterialPageRoute(builder: (_) => NotFoundPage());
+            return MaterialPageRoute(builder: (_) => const NotFoundPage());
         }
       },
     );
@@ -174,11 +175,13 @@ class _MyAppState extends State<MyApp> {
 }
 
 class NotFoundPage extends StatelessWidget {
+  const NotFoundPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Not Found")),
-      body: Center(child: Text("The page you are looking for doesn't exist.")),
+      appBar: AppBar(title: const Text("Not Found")),
+      body: const Center(child: Text("The page you are looking for doesn't exist.")),
     );
   }
 }

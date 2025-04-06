@@ -7,7 +7,7 @@ class EmailVerificationScreen extends StatefulWidget {
   final String? initialToken;
   final String? email;
 
-  EmailVerificationScreen({this.initialToken, this.email});
+  const EmailVerificationScreen({super.key, this.initialToken, this.email});
 
   @override
   _EmailVerificationScreenState createState() => _EmailVerificationScreenState();
@@ -15,7 +15,7 @@ class EmailVerificationScreen extends StatefulWidget {
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _tokenController = TextEditingController();
+  final TextEditingController _tokenController = TextEditingController();
   bool _isLoading = false;
   String _email = '';
 
@@ -26,7 +26,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     if (widget.initialToken != null && widget.initialToken!.isNotEmpty) {
       _tokenController.text = widget.initialToken!;
       // Auto-verify if token is provided
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         _submitVerification();
       });
     }
@@ -48,7 +48,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         if (token != null && token.isNotEmpty && _tokenController.text.isEmpty) {
           _tokenController.text = token;
           // Auto-verify if token is provided
-          Future.delayed(Duration(milliseconds: 500), () {
+          Future.delayed(const Duration(milliseconds: 500), () {
             _submitVerification();
           });
         }
@@ -65,7 +65,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   void _submitVerification() async {
     if (_tokenController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a verification token')),
+        const SnackBar(content: Text('Please enter a verification token')),
       );
       return;
     }
@@ -87,7 +87,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         );
         
         // Navigate to login screen after successful verification
-        Future.delayed(Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 2), () {
           Navigator.pushReplacementNamed(context, '/');
         });
       } else {
@@ -101,7 +101,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred during verification. Please try again.')),
+        const SnackBar(content: Text('An error occurred during verification. Please try again.')),
       );
     }
   }
@@ -109,7 +109,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Email Verification")),
+      appBar: AppBar(title: const Text("Email Verification")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -126,19 +126,19 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       size: 64,
                       color: Theme.of(context).primaryColor,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       "Verify Your Email",
                       style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       "We've sent a verification code to $_email. Please check your email and enter the code below to verify your account.",
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 24),
-                    Text(
+                    const SizedBox(height: 24),
+                    const Text(
                       "Didn't receive the email? Check your spam folder or request a new code.",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontStyle: FontStyle.italic),
@@ -147,46 +147,46 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   TextField(
                     controller: _tokenController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Verification Code',
                       border: OutlineInputBorder(),
                       helperText: 'Enter the 6-digit code from your verification email',
                     ),
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       letterSpacing: 8,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _submitVerification,
-                    child: _isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text('Verify Email'),
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                     ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Verify Email'),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/');
               },
-              child: Text("Back to Login"),
+              child: const Text("Back to Login"),
             ),
           ],
         ),

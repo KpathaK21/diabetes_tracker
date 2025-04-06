@@ -1,12 +1,16 @@
-# Food Image Classification for Diabetes App
+# Enhanced Food Image Classification for Diabetes App
 
-This service provides food image classification capabilities for the diabetes management application. It uses a Convolutional Neural Network (CNN) to identify food items from images and provides nutritional information.
+This service provides advanced food image classification capabilities for the diabetes management application. It uses a Convolutional Neural Network (CNN) to identify food items from images and provides comprehensive nutritional information with diabetes-specific insights.
 
 ## Features
 
-- Food image classification using CNN
-- Nutritional information extraction
-- Integration with the diabetes management app
+- Food image classification using CNN with transfer learning
+- Enhanced nutritional information extraction including:
+  - Detailed nutrient breakdown (carbs, protein, fat, fiber, vitamins, minerals)
+  - Glycemic index values
+  - Portion size information
+  - Diabetes impact assessment
+- Seamless integration with the diabetes management app
 
 ## Setup Instructions
 
@@ -33,9 +37,9 @@ For this example, we're using transfer learning with MobileNetV2. You can either
 - Use the Food-101 dataset (https://data.vision.ee.ethz.ch/cvl/food-101.tar.gz)
 - Use your own dataset of food images
 
-### Training the Model
+### Training the Enhanced Model
 
-If you want to train the model with your own dataset:
+The enhanced model uses a more sophisticated architecture with fine-tuning capabilities:
 
 1. Organize your dataset in the following structure:
 ```
@@ -68,15 +72,25 @@ food_dataset/
 
 ### Running the Service
 
-1. Start the Flask service:
+You can run either the full service or the mock service:
+
+1. Start the enhanced Flask service:
 
 ```bash
 cd ai_services
-chmod +x start_service.sh
-./start_service.sh
+chmod +x start_enhanced_service.sh
+./start_enhanced_service.sh
 ```
 
-The service will run on http://localhost:5000
+2. Or start the mock service (for testing without a trained model):
+
+```bash
+cd ai_services
+chmod +x start_enhanced_mock_service.sh
+./start_enhanced_mock_service.sh
+```
+
+The service will run on http://localhost:5000 (full service) or http://localhost:5001 (mock service)
 
 ## API Endpoints
 
@@ -93,7 +107,7 @@ The service will run on http://localhost:5000
 }
 ```
 
-**Response:**
+**Enhanced Response:**
 ```json
 {
   "food": "pizza",
@@ -104,9 +118,19 @@ The service will run on http://localhost:5000
     "protein": 11.0,
     "fat": 10.0,
     "fiber": 2.3,
-    "sugar": 3.6
+    "sugar": 3.6,
+    "sodium": 598.0,
+    "potassium": 184.0,
+    "cholesterol": 17.0,
+    "vitamin_a": 5.0,
+    "vitamin_c": 2.0,
+    "calcium": 18.0,
+    "iron": 10.0
   },
-  "description": "Pizza with cheese, tomato sauce, and various toppings"
+  "glycemic_index": 60,
+  "portion_size": "1 slice (107g)",
+  "description": "Pizza with cheese, tomato sauce, and various toppings",
+  "diabetes_impact": "Moderate glycemic impact. The combination of cheese and refined flour crust can raise blood glucose levels."
 }
 ```
 
@@ -177,7 +201,8 @@ The AI service is integrated with the main diabetes application through:
 
 ## Future Improvements
 
-- Implement more sophisticated CNN architectures
-- Expand the food database with more items and detailed nutritional information
-- Add support for multiple food items in a single image
-- Implement portion size estimation
+- Implement more sophisticated CNN architectures (EfficientNet, ResNet)
+- Add support for multiple food items in a single image using object detection
+- Implement more accurate portion size estimation using depth estimation
+- Add personalized recommendations based on user's medical profile
+- Integrate with continuous glucose monitoring data for better insights

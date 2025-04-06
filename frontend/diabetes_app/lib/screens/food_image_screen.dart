@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:diabetes_app/services/diet_service.dart';
 
 class FoodImageScreen extends StatefulWidget {
+  const FoodImageScreen({super.key});
+
   @override
   _FoodImageScreenState createState() => _FoodImageScreenState();
 }
@@ -70,7 +72,7 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
   Future<void> _classifyImage() async {
     if (_pickedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select an image first')),
+        const SnackBar(content: Text('Please select an image first')),
       );
       return;
     }
@@ -106,7 +108,7 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
   Future<void> _submitAndGetRecommendation() async {
     if (_pickedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select an image first')),
+        const SnackBar(content: Text('Please select an image first')),
       );
       return;
     }
@@ -147,13 +149,59 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
     } finally {
       setState(() => _isLoading = false);
     }
+  
+    // Helper method to get color based on glycemic index
+    Color getGlycemicIndexColor(dynamic glycemicIndex) {
+      int gi = 0;
+      if (glycemicIndex is int) {
+        gi = glycemicIndex;
+      } else if (glycemicIndex is double) {
+        gi = glycemicIndex.toInt();
+      } else if (glycemicIndex is String) {
+        gi = int.tryParse(glycemicIndex) ?? 0;
+      }
+      
+      if (gi <= 0) return Colors.grey; // Unknown or invalid
+      if (gi < 55) return Colors.green; // Low GI
+      if (gi < 70) return Colors.orange; // Medium GI
+      return Colors.red; // High GI
+    }
+    
+    // Helper method to format nutrient names
+    String formatNutrientName(String name) {
+      // Capitalize first letter and replace underscores with spaces
+      if (name.isEmpty) return name;
+      name = name.replaceAll('_', ' ');
+      return name[0].toUpperCase() + name.substring(1);
+    }
+    
+    // Helper method to get appropriate unit for nutrients
+    String getNutrientUnit(String name) {
+      // Add units based on nutrient type
+      if (name.contains('carb') ||
+          name.contains('protein') ||
+          name.contains('fat') ||
+          name.contains('fiber') ||
+          name.contains('sugar')) {
+        return 'g';
+      } else if (name.contains('sodium') ||
+                name.contains('potassium') ||
+                name.contains('cholesterol')) {
+        return 'mg';
+      } else if (name.contains('vitamin') ||
+                name.contains('calcium') ||
+                name.contains('iron')) {
+        return '%';
+      }
+      return '';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Food Image Analysis'),
+        title: const Text('Food Image Analysis'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -182,11 +230,11 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
                                 fit: BoxFit.cover,
                               ),
                       )
-                    : Center(
+                    : const Center(
                         child: Text('No image selected'),
                       ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Image selection buttons
               Row(
@@ -194,26 +242,26 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: _isLoading ? null : () => _pickImage(ImageSource.camera),
-                    icon: Icon(Icons.camera_alt),
-                    label: Text('Camera'),
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Camera'),
                   ),
                   ElevatedButton.icon(
                     onPressed: _isLoading ? null : () => _pickImage(ImageSource.gallery),
-                    icon: Icon(Icons.photo_library),
-                    label: Text('Gallery'),
+                    icon: const Icon(Icons.photo_library),
+                    label: const Text('Gallery'),
                   ),
                   ElevatedButton.icon(
                     onPressed: _isLoading || _pickedFile == null ? null : _classifyImage,
-                    icon: Icon(Icons.search),
-                    label: Text('Classify'),
+                    icon: const Icon(Icons.search),
+                    label: const Text('Classify'),
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Classification results
               if (_isClassifying)
-                Center(child: CircularProgressIndicator())
+                const Center(child: CircularProgressIndicator())
               else if (_classificationResult != null) ...[
                 Card(
                   elevation: 4,
@@ -222,75 +270,147 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Classification Results',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text('Food: ${_classificationResult!['classification']['food']}'),
                         Text('Confidence: ${(_classificationResult!['classification']['confidence'] * 100).toStringAsFixed(2)}%'),
                         Text('Calories: ${_classificationResult!['classification']['calories']}'),
+                        
+                        // Display portion size if available
+                        if (_classificationResult!['classification']['portion_size'] != null)
+                          Text('Portion Size: ${_classificationResult!['classification']['portion_size']}'),
+                        
+                        // Display glycemic index if available
+                        if (_classificationResult!['classification']['glycemic_index'] != null)
+                          Builder(
+                            builder: (context) {
+                              // Determine color based on glycemic index value
+                              final gi = _classificationResult!['classification']['glycemic_index'];
+                              Color giColor = Colors.grey;
+                              if (gi is int || gi is double) {
+                                final giValue = gi is int ? gi : (gi as double).toInt();
+                                if (giValue > 0) {
+                                  if (giValue < 55) {
+                                    giColor = Colors.green;
+                                  } else if (giValue < 70) giColor = Colors.orange;
+                                  else giColor = Colors.red;
+                                }
+                              }
+                              
+                              return Text(
+                                'Glycemic Index: ${_classificationResult!['classification']['glycemic_index']}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: giColor,
+                                ),
+                              );
+                            },
+                          ),
+                        
                         Text('Description: ${_classificationResult!['classification']['description']}'),
-                        SizedBox(height: 8),
-                        Text(
+                        
+                        // Display diabetes impact if available
+                        if (_classificationResult!['classification']['diabetes_impact'] != null) ...[
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Diabetes Impact:',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text('${_classificationResult!['classification']['diabetes_impact']}',
+                            style: const TextStyle(
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                        
+                        const SizedBox(height: 8),
+                        const Text(
                           'Nutrients:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        ..._classificationResult!['classification']['nutrients'].entries.map<Widget>(
-                          (entry) => Text('${entry.key}: ${entry.value}'),
-                        ),
+                        ..._classificationResult!['classification']['nutrients'].entries.map<Widget>((entry) {
+                          // Format nutrient name
+                          String name = entry.key;
+                          if (name.isNotEmpty) {
+                            name = name.replaceAll('_', ' ');
+                            name = name[0].toUpperCase() + name.substring(1);
+                          }
+                          
+                          // Add appropriate unit
+                          String unit = '';
+                          if (name.toLowerCase().contains('carb') ||
+                              name.toLowerCase().contains('protein') ||
+                              name.toLowerCase().contains('fat') ||
+                              name.toLowerCase().contains('fiber') ||
+                              name.toLowerCase().contains('sugar')) {
+                            unit = 'g';
+                          } else if (name.toLowerCase().contains('sodium') ||
+                                    name.toLowerCase().contains('potassium') ||
+                                    name.toLowerCase().contains('cholesterol')) {
+                            unit = 'mg';
+                          } else if (name.toLowerCase().contains('vitamin') ||
+                                    name.toLowerCase().contains('calcium') ||
+                                    name.toLowerCase().contains('iron')) {
+                            unit = '%';
+                          }
+                          
+                          return Text('$name: ${entry.value}$unit');
+                        }).toList(),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
               ],
 
               // Glucose and meal information form
-              Text(
+              const Text(
                 'Enter Glucose and Meal Information',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Glucose Level'),
+                decoration: const InputDecoration(labelText: 'Glucose Level'),
                 keyboardType: TextInputType.number,
                 onSaved: (value) => _glucoseLevel = double.parse(value!),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter glucose level' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Meal Tag'),
+                decoration: const InputDecoration(labelText: 'Meal Tag'),
                 onSaved: (value) => _mealTag = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter meal tag' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Meal Type'),
+                decoration: const InputDecoration(labelText: 'Meal Type'),
                 onSaved: (value) => _mealType = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter meal type' : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Notes'),
+                decoration: const InputDecoration(labelText: 'Notes'),
                 onSaved: (value) => _notes = value!,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter notes' : null,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isLoading || _pickedFile == null
                     ? null
                     : _submitAndGetRecommendation,
                 child: _isLoading
-                    ? CircularProgressIndicator()
-                    : Text('Submit and Get Recommendation'),
+                    ? const CircularProgressIndicator()
+                    : const Text('Submit and Get Recommendation'),
               ),
             ],
           ),

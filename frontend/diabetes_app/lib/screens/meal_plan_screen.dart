@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../services/auth_service.dart';  // Adjust import based on your structure
+// Adjust import based on your structure
 
 class MealPlanScreen extends StatefulWidget {
+  const MealPlanScreen({super.key});
+
   @override
   _MealPlanScreenState createState() => _MealPlanScreenState();
 }
@@ -45,22 +47,22 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Today's Meal Plan")),
+      appBar: AppBar(title: const Text("Today's Meal Plan")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (recommendation != null)
                   Text(
                     recommendation!,
-                    style: TextStyle(fontSize: 18),
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ElevatedButton(
                   onPressed: fetchRecommendation,
-                  child: Text('Get Recommendation'),
+                  child: const Text('Get Recommendation'),
                 ),
               ],
             ),

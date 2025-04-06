@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:diabetes_app/services/auth_service.dart';  // Import AuthService
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -53,7 +54,7 @@ class _SignupScreenState extends State<SignupScreen> {
       });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred during signup. Please try again.')),
+        const SnackBar(content: Text('An error occurred during signup. Please try again.')),
       );
     }
   }
@@ -61,7 +62,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Sign Up")),
+      appBar: AppBar(title: const Text("Sign Up")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -70,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Column(
               children: <Widget>[
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(labelText: 'Email'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -84,19 +85,19 @@ class _SignupScreenState extends State<SignupScreen> {
                   onSaved: (value) => _email = value!,
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Password'),
                   obscureText: true,
                   validator: (value) =>
                       value!.length < 6 ? 'Password must be at least 6 characters' : null,
                   onSaved: (value) => _password = value!,
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Full Name'),
+                  decoration: const InputDecoration(labelText: 'Full Name'),
                   validator: (value) => value!.isEmpty ? 'Enter your full name' : null,
                   onSaved: (value) => _fullName = value!,
                 ),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Date of Birth (YYYY-MM-DD)',
                     hintText: 'e.g., 1990-01-31'
                   ),
@@ -112,9 +113,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   },
                   onSaved: (value) => _dob = value!,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  decoration: InputDecoration(labelText: 'Gender'),
+                  decoration: const InputDecoration(labelText: 'Gender'),
                   value: _gender,
                   items: ['Male', 'Female', 'Other'].map((String value) {
                     return DropdownMenuItem<String>(
@@ -129,27 +130,27 @@ class _SignupScreenState extends State<SignupScreen> {
                   },
                   onSaved: (value) => _gender = value!,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submitSignup,
-                  child: _isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text('Sign Up'),
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
+                    minimumSize: const Size(double.infinity, 50),
                   ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Sign Up'),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // Button for already have an account
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Already have an account?"),
+                    const Text("Already have an account?"),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacementNamed(context, '/'); // Navigate to LoginScreen
                       },
-                      child: Text("Login"),
+                      child: const Text("Login"),
                     ),
                   ],
                 ),

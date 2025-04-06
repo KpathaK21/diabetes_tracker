@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:diabetes_app/services/auth_service.dart';
 
 class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
+
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
 }
@@ -57,10 +59,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Diet + Glucose History"),
+        title: const Text("Diet + Glucose History"),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             tooltip: "Logout",
             onPressed: () {
               AuthService().logout(context);
@@ -69,23 +71,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : history.isEmpty
-              ? Center(child: Text("No logs available"))
+              ? const Center(child: Text("No logs available"))
               : ListView.builder(
                   itemCount: history.length,
                   itemBuilder: (context, index) {
                     final entry = history[index];
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       elevation: 3,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("📅 ${entry['timestamp']}", style: TextStyle(fontWeight: FontWeight.bold)),
-                            SizedBox(height: 8),
+                            Text("📅 ${entry['timestamp']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
                             Text("🍽 Food: ${entry['food_description']}"),
                             Text("🔥 Calories: ${entry['calories']}"),
                             Text("🔬 Nutrients: ${entry['nutrients']}"),

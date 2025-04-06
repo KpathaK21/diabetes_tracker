@@ -1,15 +1,4 @@
 {
-    "apple_pie": {
-        "calories": 237,
-        "nutrients": {
-            "carbohydrates": 33.6,
-            "protein": 2.4,
-            "fat": 11.0,
-            "fiber": 1.4,
-            "sugar": 18.9
-        },
-        "description": "Apple pie with a sweet filling of apple, sugar, and cinnamon"
-    },
     "pizza": {
         "calories": 266,
         "nutrients": {
@@ -17,9 +6,19 @@
             "protein": 11.0,
             "fat": 10.0,
             "fiber": 2.3,
-            "sugar": 3.6
+            "sugar": 3.6,
+            "sodium": 598.0,
+            "potassium": 184.0,
+            "cholesterol": 17.0,
+            "vitamin_a": 5.0,
+            "vitamin_c": 2.0,
+            "calcium": 18.0,
+            "iron": 10.0
         },
-        "description": "Pizza with cheese, tomato sauce, and various toppings"
+        "glycemic_index": 60,
+        "portion_size": "1 slice (107g)",
+        "description": "Pizza with cheese, tomato sauce, and various toppings",
+        "diabetes_impact": "Moderate glycemic impact. The combination of cheese and refined flour crust can raise blood glucose levels."
     },
     "salad": {
         "calories": 152,
@@ -28,9 +27,19 @@
             "protein": 3.8,
             "fat": 11.0,
             "fiber": 3.0,
-            "sugar": 2.5
+            "sugar": 2.5,
+            "sodium": 170.0,
+            "potassium": 350.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 70.0,
+            "vitamin_c": 40.0,
+            "calcium": 5.0,
+            "iron": 8.0
         },
-        "description": "Mixed greens with vegetables and dressing"
+        "glycemic_index": 15,
+        "portion_size": "1 bowl (150g)",
+        "description": "Mixed greens with vegetables and dressing",
+        "diabetes_impact": "Low glycemic impact. High fiber content helps slow glucose absorption."
     },
     "sandwich": {
         "calories": 290,
@@ -39,9 +48,40 @@
             "protein": 15.0,
             "fat": 9.0,
             "fiber": 2.0,
-            "sugar": 4.0
+            "sugar": 4.0,
+            "sodium": 560.0,
+            "potassium": 220.0,
+            "cholesterol": 25.0,
+            "vitamin_a": 4.0,
+            "vitamin_c": 3.0,
+            "calcium": 15.0,
+            "iron": 15.0
         },
-        "description": "Sandwich with bread, meat, cheese, and vegetables"
+        "glycemic_index": 55,
+        "portion_size": "1 sandwich (150g)",
+        "description": "Sandwich with bread, meat, cheese, and vegetables",
+        "diabetes_impact": "Moderate glycemic impact. Whole grain bread options can lower the impact."
+    },
+    "apple_pie": {
+        "calories": 237,
+        "nutrients": {
+            "carbohydrates": 33.6,
+            "protein": 2.4,
+            "fat": 11.0,
+            "fiber": 1.4,
+            "sugar": 18.9,
+            "sodium": 170.0,
+            "potassium": 100.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 1.0,
+            "vitamin_c": 2.0,
+            "calcium": 1.0,
+            "iron": 4.0
+        },
+        "glycemic_index": 65,
+        "portion_size": "1 slice (125g)",
+        "description": "Apple pie with a sweet filling of apple, sugar, and cinnamon",
+        "diabetes_impact": "High glycemic impact due to sugar content and refined flour crust."
     },
     "rice": {
         "calories": 130,
@@ -50,9 +90,19 @@
             "protein": 2.7,
             "fat": 0.3,
             "fiber": 0.4,
-            "sugar": 0.1
+            "sugar": 0.1,
+            "sodium": 1.0,
+            "potassium": 55.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 0.0,
+            "vitamin_c": 0.0,
+            "calcium": 1.0,
+            "iron": 2.0
         },
-        "description": "Cooked white rice"
+        "glycemic_index": 73,
+        "portion_size": "1 cup cooked (158g)",
+        "description": "Cooked white rice",
+        "diabetes_impact": "High glycemic impact. Brown rice is a better alternative with more fiber."
     },
     "pasta": {
         "calories": 158,
@@ -61,9 +111,19 @@
             "protein": 5.8,
             "fat": 0.9,
             "fiber": 1.8,
-            "sugar": 0.6
+            "sugar": 0.6,
+            "sodium": 1.0,
+            "potassium": 62.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 0.0,
+            "vitamin_c": 0.0,
+            "calcium": 1.0,
+            "iron": 5.0
         },
-        "description": "Cooked pasta with sauce"
+        "glycemic_index": 55,
+        "portion_size": "1 cup cooked (140g)",
+        "description": "Cooked pasta with sauce",
+        "diabetes_impact": "Moderate glycemic impact. Whole grain pasta is a better option."
     },
     "chicken": {
         "calories": 165,
@@ -72,9 +132,19 @@
             "protein": 31.0,
             "fat": 3.6,
             "fiber": 0.0,
-            "sugar": 0.0
+            "sugar": 0.0,
+            "sodium": 74.0,
+            "potassium": 220.0,
+            "cholesterol": 85.0,
+            "vitamin_a": 1.0,
+            "vitamin_c": 0.0,
+            "calcium": 1.0,
+            "iron": 5.0
         },
-        "description": "Grilled chicken breast"
+        "glycemic_index": 0,
+        "portion_size": "3 oz (85g)",
+        "description": "Grilled chicken breast",
+        "diabetes_impact": "Low glycemic impact. Good protein source without carbohydrates."
     },
     "fish": {
         "calories": 136,
@@ -83,9 +153,19 @@
             "protein": 22.0,
             "fat": 5.0,
             "fiber": 0.0,
-            "sugar": 0.0
+            "sugar": 0.0,
+            "sodium": 60.0,
+            "potassium": 380.0,
+            "cholesterol": 55.0,
+            "vitamin_a": 2.0,
+            "vitamin_c": 0.0,
+            "calcium": 2.0,
+            "iron": 3.0
         },
-        "description": "Baked fish fillet"
+        "glycemic_index": 0,
+        "portion_size": "3 oz (85g)",
+        "description": "Baked fish fillet",
+        "diabetes_impact": "Low glycemic impact. Rich in omega-3 fatty acids which may improve insulin sensitivity."
     },
     "fruit_salad": {
         "calories": 89,
@@ -94,9 +174,19 @@
             "protein": 1.0,
             "fat": 0.5,
             "fiber": 3.0,
-            "sugar": 16.0
+            "sugar": 16.0,
+            "sodium": 2.0,
+            "potassium": 250.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 5.0,
+            "vitamin_c": 60.0,
+            "calcium": 2.0,
+            "iron": 2.0
         },
-        "description": "Mixed fresh fruits"
+        "glycemic_index": 50,
+        "portion_size": "1 cup (150g)",
+        "description": "Mixed fresh fruits",
+        "diabetes_impact": "Moderate glycemic impact. The fiber helps slow sugar absorption."
     },
     "yogurt": {
         "calories": 150,
@@ -105,8 +195,144 @@
             "protein": 12.0,
             "fat": 4.0,
             "fiber": 0.0,
-            "sugar": 15.0
+            "sugar": 15.0,
+            "sodium": 130.0,
+            "potassium": 380.0,
+            "cholesterol": 15.0,
+            "vitamin_a": 2.0,
+            "vitamin_c": 0.0,
+            "calcium": 30.0,
+            "iron": 0.0
         },
-        "description": "Plain yogurt with fruit"
+        "glycemic_index": 35,
+        "portion_size": "1 cup (245g)",
+        "description": "Plain yogurt with fruit",
+        "diabetes_impact": "Low to moderate glycemic impact. Probiotics may help improve glucose metabolism."
+    },
+    "oatmeal": {
+        "calories": 158,
+        "nutrients": {
+            "carbohydrates": 27.0,
+            "protein": 6.0,
+            "fat": 3.0,
+            "fiber": 4.0,
+            "sugar": 1.0,
+            "sodium": 115.0,
+            "potassium": 130.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 0.0,
+            "vitamin_c": 0.0,
+            "calcium": 2.0,
+            "iron": 10.0
+        },
+        "glycemic_index": 55,
+        "portion_size": "1 cup cooked (234g)",
+        "description": "Cooked oatmeal",
+        "diabetes_impact": "Moderate glycemic impact. High fiber content helps control blood sugar levels."
+    },
+    "eggs": {
+        "calories": 78,
+        "nutrients": {
+            "carbohydrates": 0.6,
+            "protein": 6.3,
+            "fat": 5.3,
+            "fiber": 0.0,
+            "sugar": 0.6,
+            "sodium": 62.0,
+            "potassium": 63.0,
+            "cholesterol": 187.0,
+            "vitamin_a": 6.0,
+            "vitamin_c": 0.0,
+            "calcium": 2.0,
+            "iron": 4.0
+        },
+        "glycemic_index": 0,
+        "portion_size": "1 large egg (50g)",
+        "description": "Boiled or fried egg",
+        "diabetes_impact": "Low glycemic impact. Good protein source with minimal effect on blood sugar."
+    },
+    "broccoli": {
+        "calories": 55,
+        "nutrients": {
+            "carbohydrates": 11.0,
+            "protein": 3.7,
+            "fat": 0.6,
+            "fiber": 5.1,
+            "sugar": 2.6,
+            "sodium": 33.0,
+            "potassium": 468.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 31.0,
+            "vitamin_c": 135.0,
+            "calcium": 4.0,
+            "iron": 6.0
+        },
+        "glycemic_index": 15,
+        "portion_size": "1 cup chopped (91g)",
+        "description": "Cooked broccoli",
+        "diabetes_impact": "Low glycemic impact. High fiber content and low carbohydrates make it ideal for diabetes management."
+    },
+    "sweet_potato": {
+        "calories": 112,
+        "nutrients": {
+            "carbohydrates": 26.0,
+            "protein": 2.0,
+            "fat": 0.1,
+            "fiber": 3.8,
+            "sugar": 5.4,
+            "sodium": 72.0,
+            "potassium": 438.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 384.0,
+            "vitamin_c": 22.0,
+            "calcium": 3.0,
+            "iron": 4.0
+        },
+        "glycemic_index": 70,
+        "portion_size": "1 medium (114g)",
+        "description": "Baked sweet potato",
+        "diabetes_impact": "Moderate to high glycemic impact, but rich in nutrients and fiber which helps slow absorption."
+    },
+    "quinoa": {
+        "calories": 222,
+        "nutrients": {
+            "carbohydrates": 39.0,
+            "protein": 8.0,
+            "fat": 3.6,
+            "fiber": 5.0,
+            "sugar": 1.6,
+            "sodium": 13.0,
+            "potassium": 318.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 0.0,
+            "vitamin_c": 0.0,
+            "calcium": 3.0,
+            "iron": 15.0
+        },
+        "glycemic_index": 53,
+        "portion_size": "1 cup cooked (185g)",
+        "description": "Cooked quinoa",
+        "diabetes_impact": "Moderate glycemic impact. High protein and fiber content make it a good grain alternative."
+    },
+    "avocado": {
+        "calories": 240,
+        "nutrients": {
+            "carbohydrates": 12.8,
+            "protein": 3.0,
+            "fat": 22.0,
+            "fiber": 10.0,
+            "sugar": 0.7,
+            "sodium": 10.0,
+            "potassium": 708.0,
+            "cholesterol": 0.0,
+            "vitamin_a": 3.0,
+            "vitamin_c": 17.0,
+            "calcium": 1.0,
+            "iron": 6.0
+        },
+        "glycemic_index": 15,
+        "portion_size": "1 medium (150g)",
+        "description": "Fresh avocado",
+        "diabetes_impact": "Low glycemic impact. Healthy fats help improve insulin sensitivity."
     }
 }

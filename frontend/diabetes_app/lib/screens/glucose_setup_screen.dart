@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GlucoseSetupScreen extends StatefulWidget {
+  const GlucoseSetupScreen({super.key});
+
   @override
   _GlucoseSetupScreenState createState() => _GlucoseSetupScreenState();
 }
@@ -12,7 +14,7 @@ class _GlucoseSetupScreenState extends State<GlucoseSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   double _fastingGlucose = 0;
   double _postprandialGlucose = 0;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   void _submitGlucoseLevels() async {
     if (!_formKey.currentState!.validate()) return;
@@ -23,7 +25,7 @@ class _GlucoseSetupScreenState extends State<GlucoseSetupScreen> {
     String? token = prefs.getString('jwt_token');
 
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User not logged in")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User not logged in")));
       return;
     }
 
@@ -42,7 +44,7 @@ class _GlucoseSetupScreenState extends State<GlucoseSetupScreen> {
     if (response.statusCode == 200) {
       Navigator.pushReplacementNamed(context, '/addDiet'); // Navigate after successful saving
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save glucose levels')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to save glucose levels')));
       print("Error response: ${response.body}"); // Log the response for debugging
     }
   }
@@ -50,7 +52,7 @@ class _GlucoseSetupScreenState extends State<GlucoseSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Set Glucose Levels")),
+      appBar: AppBar(title: const Text("Set Glucose Levels")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -58,23 +60,23 @@ class _GlucoseSetupScreenState extends State<GlucoseSetupScreen> {
           child: Column(
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(labelText: 'Fasting Glucose (mg/dL)'),
+                decoration: const InputDecoration(labelText: 'Fasting Glucose (mg/dL)'),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Please enter fasting glucose' : null,
                 onSaved: (value) => _fastingGlucose = double.parse(value!),
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Postprandial Glucose (mg/dL)'),
+                decoration: const InputDecoration(labelText: 'Postprandial Glucose (mg/dL)'),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Please enter postprandial glucose' : null,
                 onSaved: (value) => _postprandialGlucose = double.parse(value!),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitGlucoseLevels,
                 child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text('Save'),
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Save'),
               ),
             ],
           ),

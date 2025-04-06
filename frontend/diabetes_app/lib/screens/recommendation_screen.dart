@@ -6,16 +6,16 @@ import 'package:diabetes_app/services/auth_service.dart';
 class RecommendationScreen extends StatelessWidget {
   final String recommendation;
 
-  const RecommendationScreen({Key? key, required this.recommendation}) : super(key: key);
+  const RecommendationScreen({super.key, required this.recommendation});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Diet Recommendation"),
+        title: const Text("Diet Recommendation"),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             tooltip: "Logout",
             onPressed: () {
               AuthService().logout(context);
@@ -30,16 +30,16 @@ class RecommendationScreen extends StatelessWidget {
           children: [
             Text(
               recommendation,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             Center(
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.pushNamed(context, '/history');
                 },
-                icon: Icon(Icons.history),
-                label: Text("View History"),
+                icon: const Icon(Icons.history),
+                label: const Text("View History"),
               ),
             ),
           ],

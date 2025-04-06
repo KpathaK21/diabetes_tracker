@@ -19,11 +19,14 @@ type ImageUploadRequest struct {
 
 // FoodClassificationResponse represents the response from the AI service
 type FoodClassificationResponse struct {
-	Food        string             `json:"food"`
-	Confidence  float64            `json:"confidence"`
-	Calories    int                `json:"calories"`
-	Nutrients   map[string]float64 `json:"nutrients"`
-	Description string             `json:"description"`
+	Food           string             `json:"food"`
+	Confidence     float64            `json:"confidence"`
+	Calories       int                `json:"calories"`
+	Nutrients      map[string]float64 `json:"nutrients"`
+	Description    string             `json:"description"`
+	GlycemicIndex  int                `json:"glycemic_index"`
+	PortionSize    string             `json:"portion_size"`
+	DiabetesImpact string             `json:"diabetes_impact"`
 }
 
 // ImageDietLog represents a diet log created from an image
@@ -63,11 +66,22 @@ func ClassifyFoodImage(c *gin.Context) {
 		return
 	}
 
-	// Create a diet log from the classification result
+	// Create a diet log from the classification result with enhanced information
+	description := classificationResponse.Food + ": " + classificationResponse.Description
+	if classificationResponse.DiabetesImpact != "" {
+		description += " - " + classificationResponse.DiabetesImpact
+	}
+	if classificationResponse.PortionSize != "" {
+		description += " (Portion: " + classificationResponse.PortionSize + ")"
+	}
+	if classificationResponse.GlycemicIndex > 0 {
+		description += fmt.Sprintf(" [GI: %d]", classificationResponse.GlycemicIndex)
+	}
+
 	dietLog := DietLog{
 		UserID:          userID.(uint),
 		Timestamp:       time.Now(),
-		FoodDescription: classificationResponse.Food + ": " + classificationResponse.Description,
+		FoodDescription: description,
 		Calories:        uint(classificationResponse.Calories),
 		Nutrients:       string(nutrientsJSON),
 	}
@@ -132,13 +146,16 @@ func callAIService(imageBase64 string) (*FoodClassificationResponse, error) {
 		// Try to parse as a generic map
 		var genericResponse map[string]interface{}
 		if jsonErr := json.Unmarshal(body, &genericResponse); jsonErr == nil {
-			// Create a default response
+			// Create a default response with enhanced fields
 			defaultResponse := &FoodClassificationResponse{
-				Food:        "unknown_food",
-				Confidence:  0.7,
-				Calories:    200,
-				Nutrients:   map[string]float64{"carbs": 30, "protein": 10, "fat": 5},
-				Description: "Food item detected",
+				Food:           "unknown_food",
+				Confidence:     0.7,
+				Calories:       200,
+				Nutrients:      map[string]float64{"carbs": 30, "protein": 10, "fat": 5},
+				Description:    "Food item detected",
+				GlycemicIndex:  50,
+				PortionSize:    "1 serving",
+				DiabetesImpact: "Unknown impact on blood glucose levels",
 			}
 
 			// Try to extract information from the generic response
@@ -187,13 +204,16 @@ func SubmitImageAndRecommend(c *gin.Context) {
 	classificationResponse, err := callAIService(request.Image)
 	if err != nil {
 		fmt.Printf("Error calling AI service: %v\n", err)
-		// Instead of failing, create a default classification response
+		// Instead of failing, create a default classification response with enhanced fields
 		classificationResponse = &FoodClassificationResponse{
-			Food:        "default_food",
-			Confidence:  0.7,
-			Calories:    200,
-			Nutrients:   map[string]float64{"carbs": 30, "protein": 10, "fat": 5},
-			Description: "Default food item when classification fails",
+			Food:           "default_food",
+			Confidence:     0.7,
+			Calories:       200,
+			Nutrients:      map[string]float64{"carbs": 30, "protein": 10, "fat": 5},
+			Description:    "Default food item when classification fails",
+			GlycemicIndex:  50,
+			PortionSize:    "1 serving",
+			DiabetesImpact: "Unknown impact on blood glucose levels",
 		}
 
 		// Log that we're using a default response
@@ -215,11 +235,22 @@ func SubmitImageAndRecommend(c *gin.Context) {
 		return
 	}
 
-	// Create a diet log from the classification result
+	// Create a diet log from the classification result with enhanced information
+	description := classificationResponse.Food + ": " + classificationResponse.Description
+	if classificationResponse.DiabetesImpact != "" {
+		description += " - " + classificationResponse.DiabetesImpact
+	}
+	if classificationResponse.PortionSize != "" {
+		description += " (Portion: " + classificationResponse.PortionSize + ")"
+	}
+	if classificationResponse.GlycemicIndex > 0 {
+		description += fmt.Sprintf(" [GI: %d]", classificationResponse.GlycemicIndex)
+	}
+
 	dietLog := DietLog{
 		UserID:          userID.(uint),
 		Timestamp:       time.Now(),
-		FoodDescription: classificationResponse.Food + ": " + classificationResponse.Description,
+		FoodDescription: description,
 		Calories:        uint(classificationResponse.Calories),
 		Nutrients:       string(nutrientsJSON),
 	}
