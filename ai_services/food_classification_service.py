@@ -24,32 +24,20 @@ MODEL_PATH = 'food_classification_model.h5'
 NUTRIENTS_DB_PATH = 'food_nutrients_db.json'
 DATASET_DIR = 'food_dataset'
 
-# Function to generate a mock classification response
-def mock_classification_response():
-    print("Generating mock classification response")
-    # Use the nutrients database to get a random food item
-    nutrients_db = load_nutrients_db()
-    if not nutrients_db:
-        return jsonify({'error': 'Nutrients database not available.'}), 500
-        
-    # Get a random food item from the nutrients database
-    food_items = list(nutrients_db.keys())
-    if not food_items:
-        return jsonify({'error': 'No food items in the nutrients database.'}), 500
-        
-    predicted_class = random.choice(food_items)
-    confidence = 0.85  # Mock confidence
+# Function to generate an unrecognized image response
+def unrecognized_image_response():
+    print("Generating unrecognized image response")
     
-    # Get nutrients information
-    nutrients_info = nutrients_db.get(predicted_class, {})
-    
-    # Prepare response
+    # Prepare response for unrecognized image
     response = {
-        'food': predicted_class,
-        'confidence': confidence,
-        'calories': nutrients_info.get('calories', 0),
-        'nutrients': nutrients_info.get('nutrients', {}),
-        'description': nutrients_info.get('description', f'This appears to be {predicted_class}')
+        'food': 'unrecognized',
+        'confidence': 0.0,
+        'calories': 0,
+        'nutrients': {},
+        'description': 'I cannot recognize the image. Please ensure the image is clear and contains a food item.',
+        'glycemic_index': 0,
+        'portion_size': 'Unknown',
+        'diabetes_impact': 'Unknown impact on blood glucose levels. Please consult with a healthcare professional.'
     }
     
     return jsonify(response)
@@ -63,13 +51,23 @@ def load_nutrients_db():
         # Default empty database
         return {}
 
-# Load or create the model
+# Load the model
 def get_model():
     if os.path.exists(MODEL_PATH):
         print("Loading existing model...")
-        return load_model(MODEL_PATH)
+        try:
+            model = load_model(MODEL_PATH)
+            print("Model loaded successfully!")
+            return model
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            print("Please run the training script to create a new model.")
+            return None
+    
     else:
-        print("No existing model found. Please train the model first.")
+        print(f"Model file {MODEL_PATH} not found.")
+        print("Please run the training script to create a model:")
+        print("./train_food_model.sh")
         return None
 
 # Preprocess image for prediction
@@ -216,48 +214,24 @@ def classify_image():
                 print(f"Successfully opened image: {img.format}, size: {img.size}, mode: {img.mode}")
             except Exception as e:
                 print(f"Error opening image: {str(e)}")
-                # Return a mock response instead of failing
-                return mock_classification_response()
+                # Return unrecognized image response instead of failing
+                print(f"Cannot process image: {str(e)}")
+                return unrecognized_image_response()
         except Exception as e:
             print(f"Error decoding base64: {str(e)}")
-            # Return a mock response instead of failing
-            return mock_classification_response()
+            # Return unrecognized image response instead of failing
+            return unrecognized_image_response()
         
         # Load the model
         model = get_model()
         
-        # If model is not available, use mock implementation
+        # If model is not available, return error message
         if model is None:
-            print("Model not available. Using mock implementation.")
-            # Use the nutrients database to get a random food item
-            nutrients_db = load_nutrients_db()
-            if not nutrients_db:
-                return jsonify({'error': 'Nutrients database not available.'}), 500
-                
-            # Get a random food item from the nutrients database
-            food_items = list(nutrients_db.keys())
-            if not food_items:
-                return jsonify({'error': 'No food items in the nutrients database.'}), 500
-                
-            predicted_class = random.choice(food_items)
-            confidence = 0.85  # Mock confidence
-            
-            # Get nutrients information
-            nutrients_info = nutrients_db.get(predicted_class, {})
-            
-            # Prepare enhanced response
-            response = {
-                'food': predicted_class,
-                'confidence': confidence,
-                'calories': nutrients_info.get('calories', 0),
-                'nutrients': nutrients_info.get('nutrients', {}),
-                'description': nutrients_info.get('description', f'This appears to be {predicted_class}'),
-                'glycemic_index': nutrients_info.get('glycemic_index', 0),
-                'portion_size': nutrients_info.get('portion_size', 'Unknown'),
-                'diabetes_impact': nutrients_info.get('diabetes_impact', 'Unknown impact on blood glucose levels')
-            }
-            
-            return jsonify(response)
+            print("Model not available. Cannot classify image.")
+            return jsonify({
+                'error': 'Model not available',
+                'message': 'The food classification model has not been trained yet. Please run the training script: ./train_food_model.sh'
+            }), 503  # Service Unavailable
         
         # If model is available, use it for prediction
         processed_img = preprocess_image(img)
@@ -276,10 +250,9 @@ def classify_image():
             predicted_class = class_names[predicted_class_index]
             confidence = float(prediction[0][predicted_class_index])
         except Exception as e:
-            # If class indices file doesn't exist, use a default class
+            # If class indices file doesn't exist, return unrecognized image response
             print(f"Error loading class indices: {e}")
-            predicted_class = "unknown_food"
-            confidence = 0.7  # Mock confidence
+            return unrecognized_image_response()
         
         # Get nutrients information
         nutrients_db = load_nutrients_db()
@@ -301,7 +274,8 @@ def classify_image():
         
     except Exception as e:
         print(f"Error in classify_image: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        # Return unrecognized image response for any unexpected errors
+        return unrecognized_image_response()
 
 # API endpoint for downloading and preparing the dataset
 @app.route('/prepare_dataset', methods=['POST'])
@@ -552,6 +526,30 @@ def train():
         return jsonify({'message': 'Model trained successfully'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    import os
+    import sys
+    
+    # Get port from environment variable or command line argument
+    port = 5002  # Default port
+    
+    # Check for port in environment variable
+    if 'FLASK_RUN_PORT' in os.environ:
+        try:
+            port = int(os.environ['FLASK_RUN_PORT'])
+            print(f"Using port {port} from environment variable FLASK_RUN_PORT")
+        except ValueError:
+            print(f"Invalid port in environment variable: {os.environ['FLASK_RUN_PORT']}")
+    
+    # Check for port in command line arguments
+    for i, arg in enumerate(sys.argv):
+        if arg == '--port' and i + 1 < len(sys.argv):
+            try:
+                port = int(sys.argv[i + 1])
+                print(f"Using port {port} from command line argument")
+            except ValueError:
+                print(f"Invalid port in command line argument: {sys.argv[i + 1]}")
+    
+    print(f"Starting food classification service on port {port}...")
+    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=5002, debug=True)
