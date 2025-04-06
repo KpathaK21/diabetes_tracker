@@ -231,7 +231,7 @@ The AI service provides endpoints for food classification and model training:
 
 ## Contributing
 
-We welcome contributions to the Diabetes Tracker Application! Here's how you can contribute:
+I welcome contributions to the Diabetes Tracker Application! Here's how you can contribute:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -258,4 +258,3 @@ Please ensure your code follows the project's coding standards and includes appr
 - Food-101 dataset from ETH Zurich
 - TensorFlow and MobileNetV2 for image classification
 - Flutter team for the amazing cross-platform framework
-- All contributors who have helped shape this project
