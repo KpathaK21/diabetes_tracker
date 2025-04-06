@@ -11,6 +11,7 @@ import 'screens/meal_plan_screen.dart';
 import 'screens/recommendation_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/email_verification_screen.dart';
+import 'screens/food_image_screen.dart';
 import 'services/auth_service.dart';
 
 bool _initialUriIsHandled = false;
@@ -139,6 +140,8 @@ class _MyAppState extends State<MyApp> {
             return MaterialPageRoute(builder: (_) => MealPlanScreen());
           case '/history':
             return MaterialPageRoute(builder: (_) => HistoryScreen());
+          case '/foodImage':
+            return MaterialPageRoute(builder: (_) => FoodImageScreen());
           case '/email_verification':
             final args = settings.arguments;
             String email = '';

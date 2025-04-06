@@ -61,6 +61,9 @@ func main() {
 		auth.POST("/submit_and_recommend", SubmitDataAndRecommend)
 		auth.GET("/history", GetUserHistory)
 
+		// New image classification endpoints
+		auth.POST("/classify_food_image", ClassifyFoodImage)
+		auth.POST("/submit_image_and_recommend", SubmitImageAndRecommend)
 	}
 
 	port := os.Getenv("PORT")

@@ -61,6 +61,13 @@ class _AddDietScreenState extends State<AddDietScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/foodImage');
+        },
+        child: Icon(Icons.camera_alt),
+        tooltip: 'Use Image Classification',
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(

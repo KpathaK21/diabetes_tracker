@@ -1,0 +1,112 @@
+{
+    "apple_pie": {
+        "calories": 237,
+        "nutrients": {
+            "carbohydrates": 33.6,
+            "protein": 2.4,
+            "fat": 11.0,
+            "fiber": 1.4,
+            "sugar": 18.9
+        },
+        "description": "Apple pie with a sweet filling of apple, sugar, and cinnamon"
+    },
+    "pizza": {
+        "calories": 266,
+        "nutrients": {
+            "carbohydrates": 33.0,
+            "protein": 11.0,
+            "fat": 10.0,
+            "fiber": 2.3,
+            "sugar": 3.6
+        },
+        "description": "Pizza with cheese, tomato sauce, and various toppings"
+    },
+    "salad": {
+        "calories": 152,
+        "nutrients": {
+            "carbohydrates": 11.0,
+            "protein": 3.8,
+            "fat": 11.0,
+            "fiber": 3.0,
+            "sugar": 2.5
+        },
+        "description": "Mixed greens with vegetables and dressing"
+    },
+    "sandwich": {
+        "calories": 290,
+        "nutrients": {
+            "carbohydrates": 38.0,
+            "protein": 15.0,
+            "fat": 9.0,
+            "fiber": 2.0,
+            "sugar": 4.0
+        },
+        "description": "Sandwich with bread, meat, cheese, and vegetables"
+    },
+    "rice": {
+        "calories": 130,
+        "nutrients": {
+            "carbohydrates": 28.0,
+            "protein": 2.7,
+            "fat": 0.3,
+            "fiber": 0.4,
+            "sugar": 0.1
+        },
+        "description": "Cooked white rice"
+    },
+    "pasta": {
+        "calories": 158,
+        "nutrients": {
+            "carbohydrates": 31.0,
+            "protein": 5.8,
+            "fat": 0.9,
+            "fiber": 1.8,
+            "sugar": 0.6
+        },
+        "description": "Cooked pasta with sauce"
+    },
+    "chicken": {
+        "calories": 165,
+        "nutrients": {
+            "carbohydrates": 0.0,
+            "protein": 31.0,
+            "fat": 3.6,
+            "fiber": 0.0,
+            "sugar": 0.0
+        },
+        "description": "Grilled chicken breast"
+    },
+    "fish": {
+        "calories": 136,
+        "nutrients": {
+            "carbohydrates": 0.0,
+            "protein": 22.0,
+            "fat": 5.0,
+            "fiber": 0.0,
+            "sugar": 0.0
+        },
+        "description": "Baked fish fillet"
+    },
+    "fruit_salad": {
+        "calories": 89,
+        "nutrients": {
+            "carbohydrates": 22.0,
+            "protein": 1.0,
+            "fat": 0.5,
+            "fiber": 3.0,
+            "sugar": 16.0
+        },
+        "description": "Mixed fresh fruits"
+    },
+    "yogurt": {
+        "calories": 150,
+        "nutrients": {
+            "carbohydrates": 17.0,
+            "protein": 12.0,
+            "fat": 4.0,
+            "fiber": 0.0,
+            "sugar": 15.0
+        },
+        "description": "Plain yogurt with fruit"
+    }
+}
