@@ -53,7 +53,7 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
           
           try {
             // Use file_selector for macOS
-            final XTypeGroup typeGroup = XTypeGroup(
+            const XTypeGroup typeGroup = XTypeGroup(
               label: 'images',
               extensions: ['jpg', 'jpeg', 'png', 'gif'],
               mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
