@@ -1,8 +1,9 @@
-import 'dart:io';
+import 'dart:io' show File, Platform;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:diabetes_app/services/diet_service.dart';
 
 class FoodImageScreen extends StatefulWidget {
@@ -13,6 +14,8 @@ class FoodImageScreen extends StatefulWidget {
 }
 
 class _FoodImageScreenState extends State<FoodImageScreen> {
+  // Controller for the image path text field
+  final TextEditingController _imagePathController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _isClassifying = false;
@@ -37,35 +40,188 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
       _isLoading = true;
     });
 
+    // Log platform information for debugging
+    String platformInfo = kIsWeb ? 'Web' : Platform.operatingSystem;
+    print('📷 Image picking initiated on $platformInfo platform');
+    print('📷 Source: ${source == ImageSource.gallery ? 'Gallery' : 'Camera'}');
+
     try {
-      _pickedFile = await ImagePicker().pickImage(
-        source: source,
-        imageQuality: 80,
-      );
-      
-      if (_pickedFile != null) {
-        if (kIsWeb) {
-          // For web platform
-          _webImage = await _pickedFile!.readAsBytes();
-          _imageFile = null;
+      if (source == ImageSource.gallery) {
+        // Check if running on macOS
+        if (!kIsWeb && Platform.isMacOS) {
+          print('🍎 Using file_selector for macOS gallery access');
+          
+          try {
+            // Use file_selector for macOS
+            final XTypeGroup typeGroup = XTypeGroup(
+              label: 'images',
+              extensions: ['jpg', 'jpeg', 'png', 'gif'],
+              mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
+            );
+            
+            print('🍎 Opening file picker dialog with image type filters');
+            final XFile? pickedFile = await openFile(
+              acceptedTypeGroups: [typeGroup],
+            );
+            
+            if (pickedFile != null) {
+              print('🍎 File selected: ${pickedFile.path}');
+              print('🍎 File name: ${pickedFile.name}');
+              
+              _pickedFile = pickedFile;
+              _imageFile = File(pickedFile.path);
+              _webImage = null;
+              
+              // Verify file exists and is readable
+              bool fileExists = await File(pickedFile.path).exists();
+              print('🍎 File exists: $fileExists');
+              
+              if (!fileExists) {
+                print('⚠️ Warning: Selected file does not exist at path: ${pickedFile.path}');
+              }
+              
+              setState(() {
+                _classificationResult = null; // Reset classification when new image is picked
+              });
+              print('🍎 Image successfully loaded from file selector');
+            } else {
+              print('🍎 No file selected or file picker was cancelled');
+            }
+          } catch (e, stackTrace) {
+            print('⚠️ Error in macOS file selection: $e');
+            print('⚠️ Stack trace: $stackTrace');
+            rethrow; // Rethrow to be caught by the outer try-catch
+          }
         } else {
-          // For mobile platforms
-          _imageFile = File(_pickedFile!.path);
-          _webImage = null;
+          // Use ImagePicker for other platforms
+          print('📱 Using ImagePicker for ${kIsWeb ? 'web' : Platform.operatingSystem} gallery access');
+          
+          try {
+            final ImagePicker picker = ImagePicker();
+            print('📱 Opening image picker with gallery source');
+            final XFile? pickedImage = await picker.pickImage(
+              source: source,
+              imageQuality: 80,
+            );
+            
+            if (pickedImage != null) {
+              print('📱 Image selected: ${pickedImage.path}');
+              _pickedFile = pickedImage;
+              
+              if (kIsWeb) {
+                // For web platform
+                print('🌐 Processing image for web platform');
+                _webImage = await pickedImage.readAsBytes();
+                print('🌐 Image loaded as bytes, size: ${_webImage!.length} bytes');
+                _imageFile = null;
+              } else {
+                // For non-web platforms
+                print('📱 Processing image for mobile platform');
+                _imageFile = File(pickedImage.path);
+                
+                // Verify file exists and is readable
+                bool fileExists = await _imageFile!.exists();
+                print('📱 File exists: $fileExists');
+                
+                if (!fileExists) {
+                  print('⚠️ Warning: Selected image file does not exist at path: ${pickedImage.path}');
+                }
+                
+                _webImage = null;
+              }
+              
+              setState(() {
+                _classificationResult = null; // Reset classification when new image is picked
+              });
+              print('📱 Image successfully loaded from image picker');
+            } else {
+              print('📱 No image selected or image picker was cancelled');
+            }
+          } catch (e, stackTrace) {
+            print('⚠️ Error in standard image picking: $e');
+            print('⚠️ Stack trace: $stackTrace');
+            rethrow; // Rethrow to be caught by the outer try-catch
+          }
         }
+      } else {
+        // Camera access - use ImagePicker for all platforms
+        print('📸 Using camera on ${kIsWeb ? 'web' : Platform.operatingSystem} platform');
         
-        setState(() {
-          _classificationResult = null; // Reset classification when new image is picked
-        });
+        try {
+          final ImagePicker picker = ImagePicker();
+          print('📸 Opening camera');
+          final XFile? pickedImage = await picker.pickImage(
+            source: source,
+            imageQuality: 80,
+          );
+          
+          if (pickedImage != null) {
+            print('📸 Image captured: ${pickedImage.path}');
+            _pickedFile = pickedImage;
+            
+            if (kIsWeb) {
+              // For web platform
+              print('🌐 Processing camera image for web platform');
+              _webImage = await pickedImage.readAsBytes();
+              print('🌐 Camera image loaded as bytes, size: ${_webImage!.length} bytes');
+              _imageFile = null;
+            } else {
+              // For non-web platforms
+              print('📱 Processing camera image for ${Platform.operatingSystem} platform');
+              _imageFile = File(pickedImage.path);
+              
+              // Verify file exists and is readable
+              bool fileExists = await _imageFile!.exists();
+              print('📱 Camera image file exists: $fileExists');
+              
+              if (!fileExists) {
+                print('⚠️ Warning: Captured image file does not exist at path: ${pickedImage.path}');
+              }
+              
+              _webImage = null;
+            }
+            
+            setState(() {
+              _classificationResult = null; // Reset classification when new image is picked
+            });
+            print('📸 Camera image successfully loaded');
+          } else {
+            print('📸 No image captured or camera was cancelled');
+          }
+        } catch (e, stackTrace) {
+          print('⚠️ Error in camera access: $e');
+          print('⚠️ Stack trace: $stackTrace');
+          rethrow; // Rethrow to be caught by the outer try-catch
+        }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Error picking image: $e');
+      print('❌ Stack trace: $stackTrace');
+      
+      // More detailed error message based on platform and source
+      String errorSource = source == ImageSource.gallery ? 'gallery' : 'camera';
+      String platformName = kIsWeb ? 'web browser' : Platform.operatingSystem;
+      String errorDetails = 'Error accessing $errorSource on $platformName: $e';
+      
+      print('❌ Detailed error: $errorDetails');
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(
+          content: Text(errorDetails),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
       );
     } finally {
       setState(() {
         _isLoading = false;
       });
+      print('🏁 Image picking process completed');
     }
   }
 
@@ -250,6 +406,12 @@ class _FoodImageScreenState extends State<FoodImageScreen> {
                     icon: const Icon(Icons.photo_library),
                     label: const Text('Gallery'),
                   ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   ElevatedButton.icon(
                     onPressed: _isLoading || _pickedFile == null ? null : _classifyImage,
                     icon: const Icon(Icons.search),

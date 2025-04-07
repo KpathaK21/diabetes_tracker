@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/glucose_setup_screen.dart';
@@ -57,7 +57,10 @@ class _MyAppState extends State<MyApp> {
     }
     
     // It will handle app links while the app is already started - only for non-web platforms
-    _sub = uriLinkStream.listen((Uri? uri) {
+    final appLinks = AppLinks();
+    
+    // Subscribe to app links
+    _sub = appLinks.uriLinkStream.listen((Uri? uri) {
       print('got uri: $uri');
       setState(() {
         _latestUri = uri;
@@ -83,8 +86,9 @@ class _MyAppState extends State<MyApp> {
     if (!_initialUriIsHandled) {
       _initialUriIsHandled = true;
       try {
-        // getInitialUri still works on web, but returns null if no initial link
-        final uri = await getInitialUri();
+        // Get the initial app link
+        final appLinks = AppLinks();
+        final uri = await appLinks.getInitialAppLink();
         print('Initial URI: $uri');
         if (uri != null && uri.path == '/verify') {
           // Extract token from the URI
