@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -110,13 +114,105 @@ func AuthMiddleware() gin.HandlerFunc {
 }
 
 func generateJWT(userID uint, email string) (string, error) {
+	// Generate a unique token ID
+	tokenID := uuid.NewString()
+
+	// Create token with more secure claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userID,
-		"email":   email,
-		"exp":     jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 24-hour expiration
+		"iss":     "diabetes-tracker-app",                  // Issuer
+		"sub":     fmt.Sprintf("%d", userID),               // Subject (user ID)
+		"email":   email,                                   // User email
+		"jti":     tokenID,                                 // Unique token ID
+		"iat":     time.Now().Unix(),                       // Issued at
+		"nbf":     time.Now().Unix(),                       // Not valid before
+		"exp":     time.Now().Add(15 * time.Minute).Unix(), // Shorter expiration (15 min)
+		"user_id": userID,                                  // Keep for backward compatibility
 	})
 
 	return token.SignedString(jwtKey)
+}
+
+// Generate a refresh token and store it in the database
+func generateRefreshToken(userID uint) (string, error) {
+	// Generate a cryptographically secure random token
+	randomBytes := make([]byte, 32)
+	if _, err := rand.Read(randomBytes); err != nil {
+		return "", fmt.Errorf("failed to generate refresh token: %w", err)
+	}
+
+	// Convert to hex string for client
+	refreshTokenString := hex.EncodeToString(randomBytes)
+
+	// Create a hash of the refresh token to store in DB
+	hashedToken := sha256.Sum256([]byte(refreshTokenString))
+	hashedTokenString := hex.EncodeToString(hashedToken[:])
+
+	// Store in database with expiration (7 days)
+	expiresAt := time.Now().Add(7 * 24 * time.Hour)
+
+	refreshToken := RefreshToken{
+		Token:     hashedTokenString,
+		UserID:    userID,
+		ExpiresAt: expiresAt,
+		Revoked:   false,
+	}
+
+	if err := DB.Create(&refreshToken).Error; err != nil {
+		return "", fmt.Errorf("failed to store refresh token: %w", err)
+	}
+
+	return refreshTokenString, nil
+}
+
+// RefreshTokenHandler handles token refresh requests
+func RefreshTokenHandler(c *gin.Context) {
+	var input struct {
+		RefreshToken string `json:"refresh_token" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	// Hash the provided refresh token
+	hashedToken := sha256.Sum256([]byte(input.RefreshToken))
+	hashedTokenString := hex.EncodeToString(hashedToken[:])
+
+	// Look up the refresh token in the database
+	var storedToken RefreshToken
+	if err := DB.Where("token = ? AND revoked = ?", hashedTokenString, false).First(&storedToken).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	// Check if the token has expired
+	if time.Now().After(storedToken.ExpiresAt) {
+		// Revoke the expired token
+		DB.Model(&storedToken).Update("revoked", true)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token expired"})
+		return
+	}
+
+	// Look up the user
+	var user User
+	if err := DB.First(&user, storedToken.UserID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Generate a new access token
+	accessToken, err := generateJWT(user.ID, user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
+		return
+	}
+
+	// Optionally, we could implement token rotation by revoking the old refresh token and issuing a new one
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": accessToken,
+	})
 }
 
 func SaveGlucoseData(c *gin.Context) {
@@ -182,21 +278,24 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	// Generate JWT
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email":   input.Email,
-		"user_id": user.ID, // ✅ include real UserID
-		"exp":     time.Now().Add(2 * time.Hour).Unix(),
-	})
-
-	tokenString, err := token.SignedString(jwtKey)
+	// Generate access token with improved security
+	accessToken, err := generateJWT(user.ID, user.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate access token"})
+		return
+	}
+
+	// Generate refresh token
+	refreshToken, err := generateRefreshToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate refresh token"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"token":   tokenString,
+		"message":       "Login successful",
+		"token":         accessToken,
+		"refresh_token": refreshToken,
+		"expires_in":    900, // 15 minutes in seconds
 	})
 }

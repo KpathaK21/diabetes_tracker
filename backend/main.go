@@ -41,6 +41,7 @@ func main() {
 	// Public routes
 	r.POST("/users", RegisterUser)
 	r.POST("/login", LoginUser)
+	r.POST("/refresh", RefreshTokenHandler) // Token refresh endpoint
 	r.POST("/submit-data", handleDataSubmission)
 	r.POST("/signup", Signup)
 	r.POST("/verify", VerifyEmail) // Email verification endpoint with code
@@ -68,19 +69,53 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8443" // Using standard HTTPS port
 	}
 
-	log.Printf("Starting server on port %s...", port)
-	r.Run(":" + port)
+	// Check if we're in development mode
+	devMode := os.Getenv("DEV_MODE") == "true"
+
+	if devMode {
+		// For development, run without TLS
+		log.Printf("Starting server in development mode on port %s...", port)
+		r.Run(":" + port)
+	} else {
+		// For production, use HTTPS
+		certFile := os.Getenv("CERT_FILE")
+		keyFile := os.Getenv("KEY_FILE")
+
+		if certFile == "" || keyFile == "" {
+			log.Fatal("CERT_FILE and KEY_FILE environment variables must be set for HTTPS")
+		}
+
+		log.Printf("Starting secure server on port %s...", port)
+		log.Fatal(http.ListenAndServeTLS(":"+port, certFile, keyFile, r))
+	}
 }
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		// Get allowed origins from environment variable or use a default for development
+		allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+		if allowedOrigins == "" {
+			// In production, this should be explicitly set to your frontend domain(s)
+			if os.Getenv("DEV_MODE") == "true" {
+				allowedOrigins = "*" // Only allow all origins in development mode
+			} else {
+				allowedOrigins = "https://yourdomain.com" // Default to your production domain
+			}
+		}
+
+		c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigins)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		// Add security headers
+		c.Writer.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		c.Writer.Header().Set("X-Content-Type-Options", "nosniff")
+		c.Writer.Header().Set("X-Frame-Options", "DENY")
+		c.Writer.Header().Set("X-XSS-Protection", "1; mode=block")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)

@@ -22,7 +22,8 @@ The project is organized into three main components:
 ### 1. Backend (Go)
 - RESTful API for handling client requests
 - PostgreSQL database integration
-- JWT authentication
+- JWT authentication with secure token storage
+- HTTPS support for secure communication
 - Integration with AI services
 
 ### 2. AI Services (Python)
@@ -75,11 +76,16 @@ nano .env
 # Install Go dependencies
 go mod download
 
+# Generate self-signed certificates for HTTPS (development only)
+chmod +x generate_certs.sh
+./generate_certs.sh
+
 # Run the backend server
 go run *.go
 ```
 
-The backend server will run on http://localhost:8080
+By default, the backend server will run on https://localhost:8443 with HTTPS enabled.
+For development without HTTPS, set `DEV_MODE=true` in your .env file, and the server will run on http://localhost:8080.
 
 ### Setting Up the AI Service
 
@@ -210,10 +216,24 @@ The AI service provides endpoints for food classification and model training:
 
 ## Troubleshooting
 
+### Security Features
+
+The application implements several security measures to protect user data:
+
+- **HTTPS**: All communication between client and server is encrypted using HTTPS
+- **Secure Token Storage**: JWT tokens are stored securely using platform-specific secure storage:
+  - iOS: Keychain
+  - Android: EncryptedSharedPreferences backed by Android Keystore
+- **Short-lived Access Tokens**: Access tokens expire after 15 minutes
+- **Refresh Token Mechanism**: Long-lived refresh tokens (7 days) for seamless re-authentication
+- **Token Revocation**: Ability to revoke refresh tokens when needed
+- **Secure Headers**: Implementation of security headers like HSTS, X-Content-Type-Options, etc.
+
 ### Backend Issues
 
 - **Database connection errors**: Check your PostgreSQL connection settings in the .env file
 - **JWT token issues**: Ensure your JWT secret is properly set in the .env file
+- **HTTPS issues**: Verify your certificate and key files are correctly configured in the .env file
 - **API errors**: Check the backend logs for detailed error messages
 
 ### AI Service Issues

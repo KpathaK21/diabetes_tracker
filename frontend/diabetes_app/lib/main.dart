@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:app_links/app_links.dart';
+import 'dart:io';
+import 'services/auth_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/glucose_setup_screen.dart';
@@ -20,6 +22,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Allow self-signed certificates in development mode
+  HttpOverrides.global = DevHttpOverrides();
+  
   runApp(const MyApp());
 }
 
